@@ -1,0 +1,45 @@
+{
+    "env": {
+        "browser": false,
+        "node": true,
+        "es6": true,
+        "mocha": true
+    },
+    "parser": "babel-eslint",
+    "parserOptions": {
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread": true
+        },
+        "sourceType": "module"
+    },
+    "plugins": [
+        "flow-vars"
+    ],
+    "globals": {
+      "__PRODUCTION__": true
+    },
+    "rules": {
+        "flow-vars/define-flow-type": 1,
+        "flow-vars/use-flow-type": 1,
+        "indent": [
+            "error",
+            "tab"
+        ],
+        "linebreak-style": [
+            "error",
+            "unix"
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "error",
+            "never"
+        ],
+        "max-len": [1, 100, 2],
+        "camelcase": [0],
+        "arrow-body-style": [1, "as-needed"],
+        "new-cap": [0]
+    }
+}
