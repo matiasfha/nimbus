@@ -4,8 +4,8 @@ import jsonfile from 'jsonfile'
 import path from 'path'
 
 
-const checkEnv = (githubToken = undefined, slackToken = undefined) => {
-	if(!githubToken || slackToken){
+const checkEnv = (githubToken = '', slackToken = '') => {
+	if(githubToken==='' || slackToken===''){
 		console.log('You need to set at least the github TOKEN and slack TOKEN')
 		process.exit()
 	}
@@ -17,7 +17,6 @@ const setConfigs = () => {
 		fs.accessSync(path.join('.','./configs.json'), fs.F_OK)
 		configs = jsonfile.readFileSync('configs.json')
 	}catch(e) {
-		console.log(e)
 		const githubToken = process.env.BOT_GITHUB_TOKEN
 		const slackToken = process.env.BOT_SLACK_TOKEN
 		checkEnv(githubToken, slackToken)
