@@ -45,7 +45,9 @@ const initBot = (slackToken) => {
 		}
 		// setTimeout( () => controller.closeRTM(), 500)
 	})
-	controller.setupWebserver()
+	if(process.env.PORT){
+		controller.setupWebserver(process.env.PORT)
+	}
 	return controller
 }
 
