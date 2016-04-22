@@ -45,7 +45,7 @@ const initBot = (slackToken) => {
 		}
 		// setTimeout( () => controller.closeRTM(), 500)
 	})
-	controller.setupWebServer()
+	controller.setupWebserver()
 	return controller
 }
 
