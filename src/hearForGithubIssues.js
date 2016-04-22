@@ -60,7 +60,6 @@ export const hearForGithubIssues = (bot, configs) => {
 		if(configs.hasOwnProperty('user')) {
 			userName = configs.user
 		}
-		console.log(userName, repoName, issueNumber)
 		return getIssue({ userName, repoName, issueNumber, token: configs.githubToken },
 			(issue) => replyIssue(bot, msg, issue),
 			(err) => bot.reply(msg, err)
