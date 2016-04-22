@@ -1,13 +1,11 @@
 const Github = require('github-api')
-const getIssue = ({userName, repoName, issueNumber, token}, callback, error) => {
+const getIssue = ({ userName, repoName, issueNumber, token }, callback, error) => {
 	// const url = `https://api.github.com/repos/${user}/${reponame}/issues/${issueNumber}`
 	const github = new Github({
 		token: token,
 		auth: 'oauth'
 	})
-	console.log(userName, repoName, issueNumber)
 	const issues = github.getIssues(userName, repoName)
-	console.log(issues)
 	issues.get(issueNumber, (err, issue) => {
 		if(err){
 			error(err)
@@ -57,12 +55,12 @@ export const hearForGithubIssues = (bot, configs) => {
 		if(!repoName) {
 			return replyError(bot, msg)
 		}
-
 		//Get username/organization
 		let userName = configs.organization
 		if(configs.hasOwnProperty('user')) {
 			userName = configs.user
 		}
+		console.log(userName, repoName, issueNumber)
 		return getIssue({ userName, repoName, issueNumber, token: configs.githubToken },
 			(issue) => replyIssue(bot, msg, issue),
 			(err) => bot.reply(msg, err)
