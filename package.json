@@ -22,7 +22,7 @@
     "babel-preset-stage-0": "^6.5.0",
     "botkit": "^0.1.1",
     "foreman": "^1.4.1",
-    "github-api": "git+ssh://git@github.com:michael/github.git",
+    "github-api": "git//git@github.com:michael/github.git",
     "jsonfile": "^2.3.0"
   },
   "devDependencies": {
