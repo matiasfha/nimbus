@@ -5,6 +5,7 @@ const getIssue = ({userName, repoName, issueNumber, token}, callback, error) => 
 		token: token,
 		auth: 'oauth'
 	})
+	console.log(userName, repoName, issueNumber)
 	const issues = github.getIssues(userName, repoName)
 	console.log(issues)
 	issues.get(issueNumber, (err, issue) => {
