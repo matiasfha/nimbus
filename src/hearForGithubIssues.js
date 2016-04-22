@@ -1,11 +1,12 @@
 const Github = require('github-api')
-const getIssue = ({userName, repoName, issueNumber, token}, callback: Function, error: Function) => {
+const getIssue = ({userName, repoName, issueNumber, token}, callback, error) => {
 	// const url = `https://api.github.com/repos/${user}/${reponame}/issues/${issueNumber}`
 	const github = new Github({
-		token:token,
-		auth:'oauth'
+		token: token,
+		auth: 'oauth'
 	})
 	const issues = github.getIssues(userName, repoName)
+	console.log(issues)
 	issues.get(issueNumber, (err, issue) => {
 		if(err){
 			error(err)
