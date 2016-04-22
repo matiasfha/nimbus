@@ -4,12 +4,8 @@
   "description": "A Slack bot with multiple powers",
   "main": "./dist/index.js",
   "scripts": {
-    "test": "mocha --compilers js:babel-core/register --recursive --require test/setup.js test/**/*.test.js",
-    "build": "rm -rf dist && mkdir -p dist && babel src/*.js --out-file dist/index.js -s",
     "start": "babel-node src/index.js",
-    "install": "npm run build",
     "lint": "eslint src test",
-    "prepublish": "rm -rf lib && npm run build",
     "test:cov": "babel-node $(npm bin)/babel-istanbul cover $(npm bin)/_mocha -- --require test/setup.js test/**/*.test.js"
   },
   "author": "Matias Hernandez <matiasfh@gmail.com> (http://matiashernandez.me)",
