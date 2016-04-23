@@ -30,7 +30,8 @@ export const hearForGithubIssues = (bot, configs) => {
 			text = issue.body.substring(0,100)
 		}
 		const issueUrl = `https://github.com/${owner}/${repoName}/issues/${issue.number}`
-		const milestoneUrl = encodeURIComponent(`https://github.com/${owner}/${repoName}/milestones/${issue.milestone.title}`)
+		const mTitle = encodeURIComponent(issue.milestone.title)
+		const milestoneUrl = `https://github.com/${owner}/${repoName}/milestones/${mTitle}`
 		let replyMsg = `Issue ${issue.number}: ${issue.title} ${issueUrl}`
 		if(issue.asignee){
 			replyMsg=`${replyMsg}\nassigned to: ${issue.assignee.login}`
