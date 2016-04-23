@@ -17,14 +17,14 @@ const getIssue = ({ userName, repoName, issueNumber, token }, callback, error) =
 
 
 /** Hear functions **/
-export const hearForGithubIssues = (bot, configs, {owner, repoName}) => {
+export const hearForGithubIssues = (bot, configs) => {
 
 	const replyError = (bot, context) => {
 		const replyMsg = `I don't know the repository to look for that issue.\n Try repoName/#1234`
 		bot.reply(context, replyMsg)
 	}
 
-	const replyIssue = (bot, context, issue) => {
+	const replyIssue = (bot, context, {issue, owner, repoName}) => {
 		let text = ''
 		if(issue.body) {
 			text = issue.body.substring(0,100)
@@ -68,7 +68,7 @@ export const hearForGithubIssues = (bot, configs, {owner, repoName}) => {
 			userName = configs.user
 		}
 		return getIssue({ userName, repoName, issueNumber, token: configs.githubToken },
-			(issue) => replyIssue(bot, msg, issue),
+			(issue) => replyIssue(bot, msg, {issue, owner: userName, repoName}),
 			(err) => bot.reply(msg, err)
 		)
 
