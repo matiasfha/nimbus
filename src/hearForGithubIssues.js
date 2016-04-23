@@ -47,11 +47,10 @@ export const hearForGithubIssues = (bot, configs) => {
 	bot.hears([/((\S*|^)?#(\d+)).*/],['direct_message','direct_mention','mention','ambient'], (bot,msg) => {
 		let issueNumber = msg.match[3]
 		let channelName = msg.channel
+		console.log(msg)
 		let repoName
 		let replyMsg
 		// Check if the channel name is related with some repo
-		console.log(channelName)
-		console.log(configs.reposMap)
 		if(configs.reposMap.hasOwnProperty(channelName)) {
 			repoName = configs.reposMap[channelName]
 			console.log(repoName)
