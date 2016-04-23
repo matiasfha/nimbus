@@ -17,7 +17,7 @@ const getIssue = ({ userName, repoName, issueNumber, token }, callback, error) =
 
 
 /** Hear functions **/
-export const hearForGithubIssues = (bot, configs) => {
+export const hearForGithubIssues = (bot, configs, {owner, repoName}) => {
 
 	const replyError = (bot, context) => {
 		const replyMsg = `I don't know the repository to look for that issue.\n Try repoName/#1234`
@@ -29,16 +29,16 @@ export const hearForGithubIssues = (bot, configs) => {
 		if(issue.body) {
 			text = issue.body.substring(0,100)
 		}
-		let replyMsg = `Issue ${issue.number}: ${issue.title} ${issue.url}`
+		const issueUrl = `https://github.com/${owner}/${repoName}/issues/${issue.number}`
+		const milestoneUrl = `https://github.com/${owner}/${repoName}/milestones/${issue.milestone.title}`
+		let replyMsg = `Issue ${issue.number}: ${issue.title} ${issueUrl}`
 		if(issue.asignee){
 			replyMsg=`${replyMsg}\nassigned to: ${issue.assignee.login}`
 		}
 		if(issue.milestone){
-			replyMsg =`${replyMsg}\nMilestone: ${issue.milestone.title} ${issue.milestone.url}`
+			replyMsg =`${replyMsg}\nMilestone: ${issue.milestone.title} ${milestoneUrl}`
 		}
-		if(issue.pull_request){
-			replyMsg= `${replyMsg}\nPull Request ${issue.pull_request.url}`
-		}
+
 		replyMsg=`${replyMsg}\n${text}...`
 		bot.reply(context, replyMsg)
 	}
@@ -49,8 +49,11 @@ export const hearForGithubIssues = (bot, configs) => {
 		let repoName
 		let replyMsg
 		// Check if the channel name is related with some repo
+		console.log(channelName)
+		console.log(configs.reposMap)
 		if(configs.reposMap.hasOwnProperty(channelName)) {
 			repoName = configs.reposMap[channelName]
+			console.log(repoName)
 		}else{
 			if(msg.match[2]){
 				repoName = msg.match[2].replace(/\/$/,'')
