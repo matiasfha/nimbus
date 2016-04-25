@@ -35,7 +35,7 @@ const setConfigs = () => {
 
 const initBot = (slackToken) => {
 	const controller = Botkit.slackbot({
-		debug: false,
+		debug: true,
 		log: 1
 	})
 
