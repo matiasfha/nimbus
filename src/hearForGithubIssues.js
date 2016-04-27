@@ -17,8 +17,8 @@ const getIssue = ({ userName, repoName, issueNumber, token }, callback, error) =
 }
 
 const replyError = (bot, context) => {
-	const replyMsg = `I don't know the repository to look for that issue.\n Try repoName/#1234`
-	bot.reply(context, replyMsg)
+	const replyMsg = `>>> I don't know the repository to look for that issue.\n Try repoName/#1234`
+	bot.replyPrivate(context, replyMsg)
 }
 
 const replyIssue = (bot, context, {issue, userName, repoName}) => {
@@ -27,50 +27,49 @@ const replyIssue = (bot, context, {issue, userName, repoName}) => {
 		text = issue.body.substring(0,100)
 	}
 	const issueUrl = `https://github.com/${userName}/${repoName}/issues/${issue.number}`
-	let replyMsg = `Issue ${issue.number}: ${issue.title} ${issueUrl}`
+	let replyMsg = ''
 
-	if(issue.asignee){
-		replyMsg=`${replyMsg}\nassigned to: ${issue.assignee.login}`
+	let fields = []
+	if(issue.assignee){
+		fields.push({
+			title: 'Assigned to',
+			value: issue.assignee.login,
+			short: true
+		})
 	}
 	if(issue.milestone){
 		const mTitle = encodeURIComponent(issue.milestone.title)
 		const milestoneUrl = `https://github.com/${userName}/${repoName}/milestones/${mTitle}`
-		replyMsg =`${replyMsg}\nMilestone: ${issue.milestone.title} ${milestoneUrl}`
+		fields.push({
+			title: 'Milestone',
+			value: `<${milestoneUrl}|${issue.milestone.title}>`,
+			short: true
+		})
 	}
 
 	replyMsg=`${replyMsg}\n${text}...`
-	bot.reply(context, replyMsg)
+	bot.reply(context, {
+		text:' ',
+		attachments: [{
+			title: issue.title,
+			title_link: issueUrl,
+			fallback: replyMsg,
+			text: replyMsg,
+			color: '#36a64f',
+			fields: fields
+		}],
+		unfurl_links: false
+
+	})
 }
 
-const getRepoName = (bot, msg, configs) => {
-	//get the channel name based on channelID
-	const setRepoName = (channelName: string, msg: string, reposMap: Object) => {
-		//if the repoName is defined in the msg
-		if(msg){
-			return msg.replace(/\/$/,'')
-		}
-		//If the channelName is defined
-		if(channelName!=='') {
-			//if channelName is defined in the reposMap
-			if(reposMap.hasOwnProperty(channelName)) {
-				return configs.reposMap[channelName]
-			}
-		}
-		return undefined
+const getRepoName = (msg, reposMap) => {
+	//if the repoName is defined in the msg
+	if(msg.match[2]){
+		return msg.match[2].replace(/\/$/,'')
 	}
-
-	return new Promise((resolve, reject) => {
-		bot.api.channels.info({ channel: msg.channel }, (err, response) => {
-			let channelName = ''
-			if(response.ok){
-				channelName = response.channel.name
-			}
-			const repoName = setRepoName(channelName, msg.match[2], configs.reposMap)
-			if(repoName) {
-				return resolve(repoName)
-			}
-			return reject(repoName)
-		})
+	return reposMap.find((item) => {
+		return item.id === msg.channel
 	})
 }
 
@@ -85,18 +84,16 @@ const getUsername = (configs) => {
 
 
 /** Hear functions **/
-export const hearForGithubIssues = (bot, configs) => {
-	bot.hears([/((\S*|^)?#(\d+)).*/],['direct_message','direct_mention','mention','ambient'], (bot,msg) => {
+export const hearForGithubIssues = (bot, configs, reposMap) => {
+	bot.hears([/((\S*|^)?#(\d+)).*/],'direct_message,direct_mention,mention,ambient', (bot,msg) => {
 		const issueNumber = msg.match[3]
 		const userName = getUsername(configs)
-		getRepoName(bot, msg, configs)
-			.then((repoName) => {
-				getIssue({ userName, repoName, issueNumber, token: configs.githubToken })
-					.then((issue) => {
-						replyIssue(bot, msg, {issue, userName, repoName})
-					},
-					(err) => console.log(err)
-				)
-			})
+		const repoName = getRepoName(msg, reposMap)
+		getIssue({ userName, repoName, issueNumber, token: configs.githubToken })
+			.then((issue) => {
+				replyIssue(bot, msg, {issue, userName, repoName})
+			},
+			(err) => console.log(err)
+		)
 	})
 }

@@ -35,29 +35,61 @@ const setConfigs = () => {
 
 const initBot = (slackToken) => {
 	const controller = Botkit.slackbot({
-		debug: true,
-		log: 1
+		debug: false,
+		log: 7
 	})
 
-	controller.spawn({
+	const bot = controller.spawn({
 		token: slackToken
-	}).startRTM( (err) => {
-		if(err){
-			throw new Error(err)
-		}
-		// setTimeout( () => controller.closeRTM(), 500)
-	})
+	}).startRTM()
 	if(process.env.PORT){
 		controller.setupWebserver(process.env.PORT)
 	}
-	return controller
+	return {bot, controller}
 }
 
+
+const getChannels = (bot, configs) => {
+	const channePromise = new Promise((resolve, reject) => {
+		bot.api.channels.list({exclude_archived: 1}, (err, response) => {
+			if(response.ok) {
+				const channels = response.channels.filter((channel) => {
+					const reposMap = configs.reposMap
+					if(reposMap.hasOwnProperty(channel.name)){
+						return {id: channel.id, channel: channel.name, repo: reposMap[channel.name]}
+					}
+				})
+				return resolve(channels)
+			}
+			return reject(err)
+		})
+	})
+
+	const privatePromise = new Promise((resolve, reject) => {
+		bot.api.groups.list({exclude_archived: 1}, (err, response) => {
+			if(response.ok) {
+				const channels = response.groups.filter((channel) => {
+					const reposMap = configs.reposMap
+					if(reposMap.hasOwnProperty(channel.name)){
+						return {id: channel.id, channel: channel.name, repo: reposMap[channel.name]}
+					}
+				})
+				return resolve(channels)
+			}
+			return reject(err)
+		})
+	})
+
+	return Promise.all([channePromise, privatePromise])
+}
 /*
 * Import plugins
 */
 import { hearForGithubIssues } from './hearForGithubIssues'
 
 const configs = setConfigs()
-const bot = initBot(configs.slackToken)
-hearForGithubIssues(bot, configs)
+const { bot, controller } = initBot(configs.slackToken)
+getChannels(bot, configs).then((response) => {
+	const reposMap = response[0].concat(response[1])
+	hearForGithubIssues(controller, configs, reposMap)
+}, (error) => console.log(error))
