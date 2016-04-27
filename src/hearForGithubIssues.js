@@ -63,14 +63,20 @@ const replyIssue = (bot, context, {issue, userName, repoName}) => {
 	})
 }
 
-const getRepoName = (msg, reposMap) => {
+const getRepoName = (msg, reposMap, configs) => {
 	//if the repoName is defined in the msg
 	if(msg.match[2]){
 		return msg.match[2].replace(/\/$/,'')
 	}
-	return reposMap.find((item) => {
+	const repo = reposMap.find((item) => {
+		console.log(item.id, msg.channel)
 		return item.id === msg.channel
 	})
+	if(!repo) {
+		return configs.baseRepo
+	}
+	console.log(repo)
+	return repo.repo
 }
 
 const getUsername = (configs) => {
@@ -88,7 +94,7 @@ export const hearForGithubIssues = (bot, configs, reposMap) => {
 	bot.hears([/((\S*|^)?#(\d+)).*/],'direct_message,direct_mention,mention,ambient', (bot,msg) => {
 		const issueNumber = msg.match[3]
 		const userName = getUsername(configs)
-		const repoName = getRepoName(msg, reposMap)
+		const repoName = getRepoName(msg, reposMap, configs)
 		getIssue({ userName, repoName, issueNumber, token: configs.githubToken })
 			.then((issue) => {
 				replyIssue(bot, msg, {issue, userName, repoName})

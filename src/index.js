@@ -24,7 +24,8 @@ const setConfigs = () => {
 			githubToken: githubToken,
 			organization: process.env.BOT_GITHUB_ORGANIZATION,
 			reposMap: process.env.BOT_GITHUB_REPOS_MAP,
-			slackToken: slackToken
+			slackToken: slackToken,
+			baseRepo: process.env.BOT_GITHUB_BASE_REPO
 		}
 		if(process.env.BOT_GITHUB_USER){
 			configs.user = process.env.BOT_GITHUB_USER
