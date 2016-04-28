@@ -2,7 +2,7 @@ import Botkit from 'botkit'
 import fs from 'fs'
 import jsonfile from 'jsonfile'
 import path from 'path'
-
+import redisStorage from 'botkit-storage-redis'
 
 const checkEnv = (githubToken = '', slackToken = '') => {
 	if(githubToken==='' || slackToken===''){
@@ -35,9 +35,13 @@ const setConfigs = () :Object => {
 }
 
 const initBot = (slackToken) => {
+	const redisConfig = {
+		url: process.env.REDIS_URL
+	}
 	const controller = Botkit.slackbot({
 		debug: false,
-		log: 2
+		log: 2,
+		storage: redisStorage(redisConfig)
 	})
 
 	const bot = controller.spawn({
@@ -76,8 +80,14 @@ const getChannels = (bot, configs) => {
 	const privatePromise = getPromise(bot.api.groups, 'groups')
 	const teamPromise = new Promise((resolve, reject) => {
 		bot.api.team.info({}, (err, response) => {
-			controller.saveTeam(response.team)
-			resolve(response.team)
+			controller.storage.teams.save({id: response.team.id}, (err) => {
+				if(err) {
+					console.error(err)
+					reject(err)
+				}else{
+					resolve(response.team)
+				}
+			})
 		})
 	})
 	return Promise.all([channelPromise, privatePromise, teamPromise])
