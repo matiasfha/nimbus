@@ -36,7 +36,7 @@ const setConfigs = () :Object => {
 
 const initBot = (slackToken) => {
 	const controller = Botkit.slackbot({
-		debug: true,
+		debug: false,
 		log: 2
 	})
 
