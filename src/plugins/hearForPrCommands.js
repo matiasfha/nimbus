@@ -8,7 +8,7 @@ const setup = (token) =>
 
 export const hear = (controller, configs) => {
 	controller.on('slash_command', (bot, msg) => {
-		bot.log(msg)
+		console.log(msg)
 		bot.replyPrivate(msg, 'Hi')
 	})
 }
