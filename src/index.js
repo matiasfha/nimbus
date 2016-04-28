@@ -11,7 +11,7 @@ const checkEnv = (githubToken = '', slackToken = '') => {
 	}
 }
 
-const setConfigs = () => {
+const setConfigs = () :Object => {
 	let configs
 	try {
 		fs.accessSync(path.join('.','./configs.json'), fs.F_OK)
@@ -36,61 +36,66 @@ const setConfigs = () => {
 
 const initBot = (slackToken) => {
 	const controller = Botkit.slackbot({
-		debug: false,
-		log: 7
+		debug: true,
+		log: 2
 	})
 
 	const bot = controller.spawn({
 		token: slackToken
 	}).startRTM()
 	if(process.env.PORT){
-		controller.setupWebserver(process.env.PORT)
+		controller.setupWebserver(process.env.PORT, (err, server) => {
+			controller.createWebhookEndpoints(server)
+		})
 	}
 	return {bot, controller}
 }
 
 
 const getChannels = (bot, configs) => {
-	const channePromise = new Promise((resolve, reject) => {
-		bot.api.channels.list({exclude_archived: 1}, (err, response) => {
-			if(response.ok) {
-				const channels = response.channels.filter((channel) => {
-					const reposMap = configs.reposMap
-					if(reposMap.hasOwnProperty(channel.name)){
-						return {id: channel.id, channel: channel.name, repo: reposMap[channel.name]}
-					}
-				})
-				return resolve(channels)
+	const getMap = (list: Array) => {
+		return list.filter((channel) => {
+			const reposMap = configs.reposMap
+			if(reposMap.hasOwnProperty(channel.name)){
+				return {id: channel.id, channel: channel.name, repo: reposMap[channel.name]}
 			}
-			return reject(err)
 		})
-	})
-
-	const privatePromise = new Promise((resolve, reject) => {
-		bot.api.groups.list({exclude_archived: 1}, (err, response) => {
-			if(response.ok) {
-				const channels = response.groups.filter((channel) => {
-					const reposMap = configs.reposMap
-					if(reposMap.hasOwnProperty(channel.name)){
-						return {id: channel.id, channel: channel.name, repo: reposMap[channel.name]}
-					}
-				})
-				return resolve(channels)
-			}
-			return reject(err)
+	}
+	const getPromise = (object: Object, type: string) => {
+		return new Promise((resolve, reject) => {
+			object.list({exclude_archived: 1}, (err, response) => {
+				if(response.ok) {
+					const channels = getMap(response[type])
+					return resolve(channels)
+				}
+				return reject(err)
+			})
 		})
-	})
+	}
+	const channelPromise = getPromise(bot.api.channels, 'channels')
+	const privatePromise = getPromise(bot.api.groups, 'groups')
 
-	return Promise.all([channePromise, privatePromise])
+	return Promise.all([channelPromise, privatePromise])
 }
 /*
 * Import plugins
 */
-import { hearForGithubIssues } from './hearForGithubIssues'
+const importPlugins = (directory) => {
+	let plugins = []
+	fs.readdirSync(directory).forEach((filename) => {
+		directory = directory.replace('src/','')
+		plugins.push(`${directory}/${filename}`)
+	})
+	return plugins
+}
+const plugins = importPlugins('./src/plugins')
+// import { hearForGithubIssues } from './hearForGithubIssues'
 
 const configs = setConfigs()
 const { bot, controller } = initBot(configs.slackToken)
 getChannels(bot, configs).then((response) => {
-	const reposMap = response[0].concat(response[1])
-	hearForGithubIssues(controller, configs, reposMap)
+	configs.reposMap = response[0].concat(response[1])
+	plugins.forEach((plugin) => {
+		require(plugin).hear(controller, configs)
+	})
 }, (error) => console.log(error))
