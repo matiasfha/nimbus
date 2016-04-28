@@ -74,8 +74,13 @@ const getChannels = (bot, configs) => {
 	}
 	const channelPromise = getPromise(bot.api.channels, 'channels')
 	const privatePromise = getPromise(bot.api.groups, 'groups')
-
-	return Promise.all([channelPromise, privatePromise])
+	const teamPromise = new Promise((resolve, reject) => {
+		bot.api.team.info({}, (err, response) => {
+			controller.saveTeam(response.team)
+			resolve(response.team)
+		})
+	})
+	return Promise.all([channelPromise, privatePromise, teamPromise])
 }
 /*
 * Import plugins
