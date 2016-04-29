@@ -68,7 +68,7 @@ const getRepoName = (msg, configs) => {
 	if(msg.match[2]){
 		return msg.match[2].replace(/\/$/,'')
 	}
-	const repo = configs.sreposMap.find((item) => {
+	const repo = configs.reposMap.find((item) => {
 		console.log(item.id, msg.channel)
 		return item.id === msg.channel
 	})
