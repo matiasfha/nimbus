@@ -1,14 +1,13 @@
 import axios from 'axios'
-const jenkinsBuild = ({ branch, recipe, token }) => {
-	// let url = 'http://jenkins.mozio.com/job/mozio.com/job/StgDeploymentFELegacy/buildWithParameters'
-	// url = `${url}?branch=${branch}&recipe=${recipe}&cause=OnDemand`
+const jenkinsBuild = ({ branch, recipe, configs }) => {
+	const token = configs.BOT_JENKINS_ACCESS_TOKEN
 	let url = `http://mozio:${token}@`
 	url = `${url}jenkins.mozio.com/job/mozio.com/job/StgDeploymentFELegacy/buildWithParameters`
 	url = `${url}?branch=${branch}&recipe=${recipe}&cause=OnDemand`
-	url = `${url}?token=h4jDvfESiGz2GSh6W0niHWEMB7q55c1I`
+	url = `${url}?token=${configs.BOT_JENKINS_JOB_TOKEN}`
 	return axios.post(url, {
 		token: token,
-		user: 'mozio:moziorocks'
+		user: configs.BOT_JENKINS_USER
 	})
 }
 
@@ -16,8 +15,7 @@ export const hear = (controller, configs) => {
 	controller.hears(['deploy ([\\w\\S]*) ([\\w\\S]*)'], 'direct_message,direct_mention,mention', (bot, msg) => {
 		const branch = msg.match[1]
 		const recipe = msg.match[2]
-		const token = configs.jenkinsToken
-		jenkinsBuild({branch, recipe, token}).then((response) => {
+		jenkinsBuild({branch, recipe, configs}).then((response) => {
 			if(response.status==201){
 				bot.reply(msg, {
 					text:' ',
@@ -35,8 +33,8 @@ export const hear = (controller, configs) => {
 			}
 
 		}, (error) => {
+			bot.reply(msg, error.statusText)
 			console.log(error)
-			bot.replyPrivate(msg, error)
 		})
 	})
 }

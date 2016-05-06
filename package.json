@@ -26,11 +26,14 @@
     "botkit": "^0.1.1",
     "botkit-storage-redis": "^1.0.1",
     "dotenv": "^2.0.0",
+    "es6-promisify": "^4.0.0",
     "express": "^4.13.4",
     "foreman": "^1.4.1",
     "github-api": "https://github.com/michael/github/tarball/master",
     "http": "0.0.0",
-    "jsonfile": "^2.3.0"
+    "jsonfile": "^2.3.0",
+    "promisify": "0.0.3",
+    "ramda": "^0.21.0"
   },
   "devDependencies": {
     "babel": "^6.5.2",
