@@ -6,6 +6,7 @@ import redisStorage from 'botkit-storage-redis'
 
 import Config from './config'
 import { getAllChannels, importPlugins } from './utils'
+import { setupServer } from './server'
 const configs = new Config()
 
 const runCheck = () => {
@@ -30,14 +31,6 @@ const initBot = (slackToken) => {
 		token: slackToken
 	}).startRTM()
 
-	if(configs.has('PORT')){
-		controller.setupWebserver(config.get('PORT'), (err, server) => {
-			server.get('/jenkins-build', (req, res) => {
-				console.log(req.query)
-			})
-			controller.createWebhookEndpoints(server)
-		})
-	}
 	return {bot, controller}
 }
 
@@ -47,6 +40,8 @@ const initBot = (slackToken) => {
 
 
 const { bot, controller } = initBot(configs.get('BOT_SLACK_TOKEN'))
+const server = setupServer(configs)
+configs.set({key:'server', value: server})
 Promise.all([getAllChannels(bot), importPlugins('./src/plugins')])
 .then((response) => {
 	configs.set({key:'channels', value:response[0]})

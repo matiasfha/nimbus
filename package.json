@@ -4,7 +4,7 @@
   "description": "A Slack bot with multiple powers",
   "main": "./dist/index.js",
   "scripts": {
-    "start": "$(npm bin)/nf start",
+    "start": "npm run build && node ./dist/index.js",
     "lint": "eslint src test",
     "build": "webpack",
     "test:cov": "babel-node $(npm bin)/babel-istanbul cover $(npm bin)/_mocha -- --require test/setup.js test/**/*.test.js"
@@ -31,13 +31,15 @@
     "foreman": "^1.4.1",
     "github-api": "https://github.com/michael/github/tarball/master",
     "http": "0.0.0",
+    "jenkins": "^0.17.0",
     "jsonfile": "^2.3.0",
     "promisify": "0.0.3",
     "ramda": "^0.21.0"
   },
   "devDependencies": {
     "babel": "^6.5.2",
-    "babel-core": "^6.7.7",
+    "babel-cli": "^6.8.0",
+    "babel-core": "^6.8.0",
     "babel-eslint": "^6.0.4",
     "babel-istanbul": "^0.7.0",
     "babel-loader": "^6.2.4",

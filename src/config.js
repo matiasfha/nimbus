@@ -24,13 +24,7 @@ class Config {
 			}
 			const filter = R.filter(n => n.length > 0)
 			const map = R.compose(R.map(getValue), filter, getMatchs)
-			let result = {}
-			const each = R.forEach((item) => {
-				const key = R.keys(item)[0]
-				result[key] = item[key]
-			})
-			R.compose(each, map)(src)
-			return result
+			return R.compose(R.mergeAll, map)(src)
 		}
 		try {
 			fs.accessSync('.env', fs.F_OK)
