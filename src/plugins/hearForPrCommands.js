@@ -6,7 +6,7 @@ const setup = (token) =>
 		auth: 'oauth'
 	})
 
-const getOpenPrs = (user, repo, github) => {
+const getOpenPrs = (user, repoName, github) => {
 	const repo = github.getRepo(user, repo)
 	const pulls = repo.listPulls({
 		state: 'open'
