@@ -20,6 +20,8 @@ module.exports = {
 	},
 	externals: nodeModules,
 	plugins: [
+		new webpack.BannerPlugin('require("source-map-support").install();',
+                           { raw: true, entryOnly: false }),
 		new webpack.optimize.OccurenceOrderPlugin(true),
 		new webpack.optimize.DedupePlugin(),
 		new webpack.optimize.UglifyJsPlugin({

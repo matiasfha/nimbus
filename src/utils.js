@@ -30,8 +30,11 @@ export const readDir = (dir) => promisify(fs.readdir)(dir)
 
 export const fileExists = (path) => promisify(fs.access)(path, fs.F_OK)
 
-export const importPlugins = (directory) => {
-	const cleanDir = directory.replace('src/','')
-	const map = R.map((filename) => `${cleanDir}/${filename}`)
-	return R.composeP(map,readDir)(directory)
+export const importPlugins = (bot, configs) => {
+	const plugins = require.context('./plugins', true,/\.js$/)
+	const modules = plugins.keys().map(plugins)
+	const load = R.map((plugin) => {
+		plugin.hear(bot, configs)
+	})
+	load(modules)
 }

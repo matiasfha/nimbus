@@ -42,8 +42,7 @@ const initBot = (slackToken) => {
 const { bot, controller } = initBot(configs.get('BOT_SLACK_TOKEN'))
 const server = setupServer(configs)
 configs.set({key:'server', value: server})
-Promise.all([getAllChannels(bot), importPlugins('./src/plugins')])
-.then((response) => {
-	configs.set({key:'channels', value:response[0]})
-	response[1].forEach((plugin) => require(plugin).hear(controller, configs))
+getAllChannels(bot).then((channels) => {
+	configs.set({key:'channels', value: channels})
+	importPlugins(bot, configs)
 })

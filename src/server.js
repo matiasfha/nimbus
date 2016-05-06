@@ -5,7 +5,7 @@ import bodyParser from 'body-parser'
 export const setupServer = (configs) => {
 	const app = express()
 	app.use(bodyParser.json())
-	app.use(bodyParser.urlencoded())
+	app.use(bodyParser.urlencoded({ extended: true }))
 	app.use(bodyParser.text())
 	app.get('/', (req, res) => {
 		res.send('Hello World!.. I\'m Nimbus')

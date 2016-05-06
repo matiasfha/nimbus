@@ -2,12 +2,13 @@
   "name": "nimbus-bot",
   "version": "1.0.0",
   "description": "A Slack bot with multiple powers",
-  "main": "./src/index.js",
+  "main": "./dist/index.js",
   "scripts": {
-    "start": "babel-node ./src/main.js",
+    "start": "nf start",
     "lint": "eslint src test",
     "build": "webpack",
-    "test:cov": "babel-node $(npm bin)/babel-istanbul cover $(npm bin)/_mocha -- --require test/setup.js test/**/*.test.js"
+    "install": "npm run build",
+    "test:cov": "babel-node $(npm bin)/babel-istanbul cover $(npm bin)/mocha -- --require test/setup.js test/**/*.test.js"
   },
   "author": "Matias Hernandez <matiasfh@gmail.com> (http://matiashernandez.me)",
   "license": "MIT",
@@ -53,6 +54,7 @@
     "eslint-plugin-flow-vars": "^0.3.0",
     "flow-bin": "^0.23.0",
     "github": "^0.2.4",
+    "mocha": "^2.4.5",
     "webpack": "^1.13.0"
   },
   "engines": {
