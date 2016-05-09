@@ -17,7 +17,7 @@ const getBuildInfo = (jenkins, name) =>
 
 const setupPostUrl = (server) => {
 	server.post('/jenkins-build', (req, res) => {
-		const buildID = req.body.BUILD_ID,
+		const buildID = req.body.BUILD_ID
 		const buildResult = req.body.BUILD_RESULT
 		const buildUrl = req.body.BUILD_URL
 		const jobName = req.body.JOB_NAME
