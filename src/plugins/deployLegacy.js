@@ -1,6 +1,8 @@
 import Jenkins from 'jenkins-api'
 import promisify from 'es6-promisify'
 
+const lastChannel = ''
+
 const setupJenkins = (configs) => {
 	let url = `http://${configs.get('BOT_JENKINS_USER')}:${configs.get('BOT_JENKINS_ACCESS_TOKEN')}@`
 	url = `${url}${configs.get('BOT_JENKINS_URL')}`
@@ -15,10 +17,22 @@ const getBuildInfo = (jenkins, name) =>
 
 const setupPostUrl = (server) => {
 	server.post('/jenkins-build', (req, res) => {
-		const build = req.body.build
-		const status = req.body.status
-		console.log(JSON.stringify(req.body))
-		res.json(req.body)
+		const buildID = req.body.BUILD_ID,
+		const buildResult = req.body.BUILD_RESULT
+		const buildUrl = req.body.BUILD_URL
+		const jobName = req.body.JOB_NAME
+		if(lastChannel!==''){
+			bot.say({
+				text: ' ',
+				channel: lastChannel,
+				attachments: [{
+					title: `Jenkins build result for job ${jobName}`,
+					title_link: buildUrl,
+					text: `The job status: ${buildResult}`,
+					color: 'green'
+				}]
+			})
+		}
 	})
 }
 
@@ -26,10 +40,11 @@ export const hear = (controller, configs) => {
 	const jenkins = setupJenkins(configs)
 	const name = configs.get('BOT_JENKINS_JOB_NAME')
 	const token = configs.get('BOT_JENKINS_JOB_TOKEN')
-	setupPostUrl(configs.get('server'))
+	setupPostUrl(configs.get('server'), controller.bot)
 	controller.hears(['deploy ([\\w\\S]*) ([\\w\\S]*)'], 'direct_message,direct_mention,mention', (bot, msg) => {
 		const branch = msg.match[1]
 		const recipe = msg.match[2]
+		const lastChannel = msg.channel
 		requestBuild(jenkins, {
 			branch,
 			recipe,
