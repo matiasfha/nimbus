@@ -17,7 +17,7 @@ const setupPostUrl = (server) => {
 	server.post('/jenkins-build', (req, res) => {
 		const build = req.body.build
 		const status = req.body.status
-		console.log(req.body)
+		console.log(JSON.stringify(req.body))
 		res.json(req.body)
 	})
 }
