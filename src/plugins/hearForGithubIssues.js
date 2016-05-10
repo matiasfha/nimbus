@@ -91,7 +91,7 @@ const getUsername = (configs) => {
 
 /** Hear functions **/
 export const hear = (controller, configs) => {
-	controller.hears([/issue ((\S*|^)?#(\d+)).*/, /pr ((\S*|^)?#(\d+)).*/],'direct_message,direct_mention,mention,ambient', (bot,msg) => {
+	return controller.hears([/issue ((\S*|^)?#(\d+)).*/, /pr ((\S*|^)?#(\d+)).*/],'direct_message,direct_mention,mention,ambient', (bot,msg) => {
 		const issueNumber = msg.match[3]
 		const userName = getUsername(configs)
 		const repoName = getRepoName(msg, configs)

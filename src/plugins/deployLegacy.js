@@ -15,7 +15,7 @@ const requestBuild = (jenkins, {branch, recipe, token, name}) =>
 const getBuildInfo = (jenkins, name) =>
 	promisify(jenkins.last_build_info)(name)
 
-const setupPostUrl = (server) => {
+const setupPostUrl = (server, bot) => {
 	server.post('/jenkins-build', (req, res) => {
 		const buildID = req.body.BUILD_ID
 		const buildResult = req.body.BUILD_RESULT

@@ -44,5 +44,5 @@ const server = setupServer(configs)
 configs.set({key:'server', value: server})
 getAllChannels(bot).then((channels) => {
 	configs.set({key:'channels', value: channels})
-	importPlugins(bot, configs)
+	importPlugins(controller, configs)
 })
