@@ -33,8 +33,7 @@ export const fileExists = (path) => promisify(fs.access)(path, fs.F_OK)
 export const importPlugins = (bot, configs) => {
 	const plugins = require.context('./plugins', true,/\.js$/)
 	const modules = plugins.keys().map(plugins)
-	const load = R.map((plugin) => {
-		plugin.hear(bot, configs)
-	})
-	load(modules)
+	const functions = R.map((plugin) => plugin.hear)
+	const run = R.forEach((f) => f(bot, configs))
+	R.compose(run, functions)(modules)
 }

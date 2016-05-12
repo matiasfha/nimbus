@@ -1,6 +1,6 @@
 const Github = require('github-api')
-const getIssue = ({ userName, repoName, issueNumber, token }, callback, error) => {
-	// const url = `https://api.github.com/repos/${user}/${reponame}/issues/${issueNumber}`
+import R from 'ramda'
+const getIssue = ({ userName, repoName, issueNumber, token }) => {
 	const github = new Github({
 		token: token,
 		auth: 'oauth'
@@ -62,46 +62,56 @@ const replyIssue = (bot, context, {issue, userName, repoName}) => {
 
 	})
 }
+const getReposMap = R.curry((configs) => {
+	const get = R.memoize(conf => {
+		const map = JSON.parse(conf.get('BOT_GITHUB_REPOS_MAP'))
+		const channels = conf.get('channels')
+		const list = R.filter((item) => R.has(item.name,map))
+		const mapping = R.map((item) =>
+			Object.assign({}, {id: item.id, channel: item.name, repo: map[item.name] })
+		)
+		return R.compose(mapping, list)(channels)
+	})
+	return get(configs)
+})
+
 
 const getRepoName = (msg, configs) => {
 	//if the repoName is defined in the msg
 	if(msg.match[2]){
 		return msg.match[2].replace(/\/$/,'')
 	}
-	const repo = configs.reposMap.find((item) => {
-		console.log(item.id, msg.channel)
-		return item.id === msg.channel
-	})
+	const find = R.find((item) => item.id === msg.channel)
+	const repo = R.compose(find, getReposMap)(configs)
 	if(!repo) {
-		return configs.baseRepo
+		return configs.get('BOT_GITHUB_BASE_REPO')
 	}
-	console.log(repo)
 	return repo.repo
 }
 
 const getUsername = (configs) => {
 	//Get username/organization
-	let userName = configs.organization
+	let userName = configs.get('BOT_GITHUB_ORGANIZATION')
 	if(configs.hasOwnProperty('user')) {
-		userName = configs.user
+		userName = configs.get('BOT_GITHUB_USER')
 	}
 	return userName
 }
 
-
 /** Hear functions **/
 export const hear = (controller, configs) => {
-	return controller.hears([/issue ((\S*|^)?#(\d+)).*/, /pr ((\S*|^)?#(\d+)).*/],'direct_message,direct_mention,mention,ambient', (bot,msg) => {
+	console.log('Hearing for issues')
+	controller.hears([/issue ((\S*|^)?#(\d+)).*/, /pr ((\S*|^)?#(\d+)).*/],'direct_message,direct_mention,mention,ambient', (bot,msg) => {
 		const issueNumber = msg.match[3]
 		const userName = getUsername(configs)
 		const repoName = getRepoName(msg, configs)
-		getIssue({ userName, repoName, issueNumber, token: configs.githubToken })
+		console.log(`Issue ${issueNumber} from ${userName}/${repoName}`)
+		getIssue({ userName, repoName, issueNumber, token: configs.get('BOT_GITHUB_TOKEN') })
 			.then((issue) => {
 				replyIssue(bot, msg, {issue, userName, repoName})
 			},
 			(err) => {
 				replyError(bot, msg)
-				console.log(err)
 			}
 		)
 	})
